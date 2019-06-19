@@ -109,6 +109,7 @@
       "jsx",
       "node"
     ],
+    "moduleDirectories": ["node_modules", "src"],
     "watchPlugins": [
       "/home/dio/Project/burger-builder/node_modules/jest-watch-typeahead/filename.js",
       "/home/dio/Project/burger-builder/node_modules/jest-watch-typeahead/testname.js"
