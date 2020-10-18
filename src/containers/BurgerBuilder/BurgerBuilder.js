@@ -44,51 +44,54 @@ class BurgerBuilder extends Component {
       this.props.history.push('/checkout')
    }
 
-   render() {
+   innerBurger = () => {
       const disabledInfo = {
          ...this.props.ings,
       }
+
       for (let key in disabledInfo) {
          disabledInfo[key] = disabledInfo[key] <= 0
       }
-      let orderSummary = null
-      let burger = this.props.error ? (
+
+      return this.props.error ? (
          <p>Ingredient can't be loaded</p>
+      ) : this.props.ings ? (
+         <>
+            <Burger ingredients={this.props.ings} />
+            <BuildControls
+               ingredientAdded={this.props.onIngredientAdded}
+               ingredientRemoved={this.props.onIngredientRemoved}
+               price={this.props.price}
+               purchasable={this.updatePurchasState(this.props.ings)}
+               disabled={disabledInfo}
+               ordered={this.purchaseHandler}
+            />
+         </>
       ) : (
          <Spinner />
       )
-      if (this.props.ings) {
-         burger = (
-            <React.Fragment>
-               <Burger ingredients={this.props.ings} />
-               <BuildControls
-                  ingredientAdded={this.props.onIngredientAdded}
-                  ingredientRemoved={this.props.onIngredientRemoved}
-                  price={this.props.price}
-                  purchasable={this.updatePurchasState(this.props.ings)}
-                  disabled={disabledInfo}
-                  ordered={this.purchaseHandler}
-               />
-            </React.Fragment>
-         )
-         orderSummary = (
-            <OrderSummary
-               ingredient={this.props.ings}
-               totalPrice={this.props.price}
-               purchaseCanceled={this.purchaseCancelHandler}
-               purchaseContinued={this.purchaseContinueHandler}
-            />
-         )
-      }
+   }
 
+   innerOrderSummary = () => {
+      return (
+         <OrderSummary
+            ingredient={this.props.ings}
+            totalPrice={this.props.price}
+            purchaseCanceled={this.purchaseCancelHandler}
+            purchaseContinued={this.purchaseContinueHandler}
+         />
+      )
+   }
+
+   render() {
       return (
          <React.Fragment>
             <Modal
                show={this.state.purchasing}
                modalClosed={this.purchaseCancelHandler}>
-               {orderSummary}
+               {this.props.ings && this.innerOrderSummary()}
             </Modal>
-            {burger}
+            {this.innerBurger()}
          </React.Fragment>
       )
    }
