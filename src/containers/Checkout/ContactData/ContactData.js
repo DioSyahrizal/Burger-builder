@@ -1,96 +1,104 @@
-import React, { Component } from 'react'
+import React from 'react'
+import { useFormik } from 'formik'
+import { connect } from 'react-redux'
+
 import Button from 'components/UI/Button/Button'
-import Spinner from 'components/UI/Spinner/Spinner'
-import axios from '../../../axios-orders'
-import classes from './ContactData.css'
 import Input from 'components/UI/Input/Input'
+import classes from './ContactData.css'
+import axios from '../../../axios-orders'
+import withErrorHandler from '../../../components/withErrorHandler/withErrorHandler'
+import * as action from '../../../store/actions/index'
 
-class ContactData extends Component {
-   state = {
-      name: 'Dio',
-      email: '',
-      address: {
-         street: '',
-         postalCode: ''
-      },
-      loading: false
-   }
-
-   orderHandler = event => {
-      event.preventDefault()
-      this.setState({
-         loading: true
-      })
+const ContactData = (props) => {
+   const submitData = (value) => {
       const order = {
-         ingredients: this.props.ingredients,
-         price: this.props.price,
+         ingredients: props.ings,
+         price: props.price,
          customer: {
-            name: 'Dio',
-            address: {
-               street: 'Candi Ngrimbi 21',
-               zipcode: 65142,
-               country: 'Indonesia'
-            },
-            email: 'diosyahrizal@gmail.com'
+            ...value,
          },
-         deliveryMethod: 'fastest'
+         deliveryMethod: 'fastest',
       }
-      axios
-         .post('/orders.json', order)
-         .then(response => {
-            this.setState({
-               loading: false
-            })
-            this.props.history.push('/orders')
-         })
-         .catch(error => {
-            this.setState({
-               loading: false
-            })
-         })
+
+      props.onOrderBurger(order)
+      props.history.push('/orders')
    }
 
-   render() {
-      let form = (
-         <form>
+   const innerForm = () => {
+      const formik = useFormik({
+         initialValues: {
+            name: '',
+            email: '',
+            street: '',
+            postal: '',
+         },
+         onSubmit: submitData,
+      })
+      return (
+         <form onSubmit={formik.handleSubmit}>
             <Input
                inputtype="input"
                type="text"
                name="name"
                placeholder="Your Name"
+               onChange={formik.handleChange}
+               value={formik.values.name}
             />
             <Input
                inputtype="input"
                type="email"
                name="email"
                placeholder="Your Mail"
+               onChange={formik.handleChange}
+               value={formik.values.email}
             />
             <Input
                inputtype="input"
                type="text"
                name="street"
                placeholder="Street"
+               onChange={formik.handleChange}
+               value={formik.values.street}
             />
             <Input
                inputtype="input"
                type="text"
                name="postal"
                placeholder="Postal Code"
+               onChange={formik.handleChange}
+               value={formik.values.postal}
             />
-            <Button btnType="Success" clicked={this.orderHandler}>
+            <Button btnType="Success" type="submit">
                ORDER HERE
             </Button>
          </form>
       )
-      if (this.state.loading) {
-         form = <Spinner />
-      }
-      return (
-         <div className={classes.ContactData}>
-            <h4> Enter your Contact Data </h4> {form}
-         </div>
-      )
+   }
+
+   return (
+      <div className={classes.ContactData}>
+         <h4> Enter your Contact Data </h4>
+
+         {innerForm()}
+      </div>
+   )
+}
+
+const mapStateToProps = (state) => {
+   return {
+      ings: state.burgerBuilder.ingredients,
+      price: state.burgerBuilder.totalPrice,
+      loading: state.order.loading,
    }
 }
 
-export default ContactData
+const mapDispatchToProps = (dispatch) => {
+   return {
+      onOrderBurger: (orderData) => dispatch(action.purchaseBurger(orderData)),
+   }
+}
+
+export default connect(
+   mapStateToProps,
+   mapDispatchToProps
+)(withErrorHandler(ContactData, axios))

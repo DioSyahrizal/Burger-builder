@@ -3,19 +3,21 @@ import Burger from '../../Burger/Burger'
 import Button from '../../UI/Button/Button'
 import classes from './CheckoutSummary.css'
 
-const checkoutSummary = props => {
+const checkoutSummary = (props) => {
    return (
       <div className={classes.CheckoutSummary}>
          <h1>We Hope tasted well</h1>
-         <div style={{ width: '100%', height: '300px' }}>
+         <div>
             <Burger ingredients={props.ingredients} />
          </div>
-         <Button btnType="Danger" clicked={props.checkoutCanceled}>
-            CANCEL
-         </Button>
-         <Button btnType="Success" clicked={props.checkoutContinued}>
-            CONTINUE
-         </Button>
+         <div style={{ display: 'inline-block' }}>
+            <Button btnType="Danger" clicked={props.checkoutCanceled}>
+               CANCEL
+            </Button>
+            <Button btnType="Success" clicked={props.checkoutContinued}>
+               CONTINUE
+            </Button>
+         </div>
       </div>
    )
 }
