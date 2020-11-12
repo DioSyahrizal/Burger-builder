@@ -1,68 +1,286 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Automated Testing with Jest
 
-## Available Scripts
+## Why testing is important?
 
-In the project directory, you can run:
+-  Testing give you confident to make changes
+-  Test help guide the design of your application
+-  Testable apps is easier to maintenance
 
-### `npm start`
+## What is Jest?
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+-  Jest is a testing framework developed by Facebook & open source contributors
+-  Included in `create-react-app`
+-  It works in React, Vue, Angular, etc
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+## How can i install Jest?
 
-### `npm test`
+if you are already using CRA, then jest is automatically installed by default.
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+You can see it in `package.json` like this
 
-### `npm run build`
+```json
+{
+   "scripts": {
+      "test": "jest"
+   }
+}
+```
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+and run it with yarn
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+```bash
+yarn test
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+or with npm
 
-### `npm run eject`
+```bash
+npm test
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+But if you not using CRA, you can install manually like this
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```bash
+yarn add --dev jest
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+or
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+npm install --save-dev jest
+```
 
-## Learn More
+## Adding support for Advanced Testing
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+-  React Test Renderer
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+```bash
+yarn add --dev react-test-renderer
+```
 
-### Code Splitting
+-  Enzyme for Shallow Rendering
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+```bash
+yarn add --dev enzyme
+```
 
-### Analyzing the Bundle Size
+Jest automatically detect `*.test.` & `*.spec.js` file include in running testing, or it can run test file in **test** directory
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
+## Customize Jest Configuration
 
-### Making a Progressive Web App
+In newest version of CRA you will get a basic configuration of jest in `jest.config.js`
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
+```javascript
+module.exports = {
+   setupFilesAfterEnv: ['./src/setupTests.ts'],
+}
+```
 
-### Advanced Configuration
+`setupTest.js`
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
+```javascript
+import '@testing-library/jest-dom'
+```
 
-### Deployment
+We import testing library so our text editor can recognize library for testing like jest-dom, etc.
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
+For further configuration you can see the documentation [here](https://jestjs.io/docs/en/configuration)
 
-### `npm run build` fails to minify
+# Configuration
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
+## How can i run specific test?
+
+You can do it with addition comment testNamePattern and fill it with your test name
+
+```bash
+jest --env=jsdom "--testNamePattern=nametest"
+```
+
+## Watching for Changes
+
+-  Test will run automatically on every change
+-  jest -watch
+-  jest -watchAll
+
+or with `create-react-app`
+
+```bash
+npm test or yarn test
+react-script test -env=jsdom
+```
+
+## Writing tests
+
+-  Jest are super easy to write
+-  Use jest globals to group and define your tests
+   -  describe (test suite)
+   -  test/it
+-  Setup your test environment
+-  Use expect statement to assert test conditions
+
+Example:
+
+```javascript
+describe('Business Case Approved', () => {
+   const BusinessCaseContainer = () => (
+      <BusinessCaseApproved>
+         <p>Children case</p>
+      </BusinessCaseApproved>
+   )
+
+   test('renders correctly', () => {
+      const { container } = render(<BusinessCaseContainer />)
+      expect(container).toBeInTheDocument()
+   })
+
+   test('children render succesfully', () => {
+      const { getByText } = render(<BusinessCaseContainer />)
+      const child = getByText('Children case')
+      expect(child).toBeInTheDocument()
+   })
+})
+```
+
+## Test Environment
+
+-  beforeAll()
+-  beforeEach()
+-  afterAll()
+-  afterEach()
+-  globalSetup()
+-  globalTeardown()
+
+## Basic Assertions
+
+`expect()` is like you want to match return of the test. It can be a boolean, numbers, string, array, object and exceptions
+
+-  Booleans: toBe(), toBeNull()
+-  Numbers: toEqual()
+-  Strings: toMatch()
+-  Arrays: toContain()
+-  Objects: toMatchObject()
+-  Exceptions: toThrow()
+
+# Mocks
+
+## Using Jest Mocks
+
+First of all what is a mocks?
+
+-  Mimic real dependencies like a backend server
+-  Capture calls
+-  Provide canned responses
+
+## Mocks in Jest
+
+-  The jest object
+-  The MIGHTY `jest.fn()`
+-  Auto mocking with `__mocks__`
+
+I will give an example how to mock a axios module (in this case we test a response of the API)
+
+```javascript
+import axios from 'axios'
+jest.mock('axios')
+
+const url = 'https://burger-builder-2c373.firebaseio.com/ingredients.json'
+
+const fetchData = async () => {
+   return await axios.get(url)
+}
+
+describe('Mocking API', () => {
+   it('call ingredients api', async () => {
+      const data = {
+         bacon: 0,
+         cheese: 0,
+         meat: 1,
+         salad: 0,
+      }
+
+      axios.get.mockImplementationOnce(() => Promise.resolve(data))
+      await expect(fetchData()).resolves.toEqual(data)
+   })
+
+   it('fetches erroneously data from an API', async () => {
+      const errorMessage = 'Network Error'
+
+      axios.get.mockImplementationOnce(() =>
+         Promise.reject(new Error(errorMessage))
+      )
+      await expect(fetchData()).rejects.toThrow(errorMessage)
+   })
+})
+```
+
+As you can see we try to expect the result of the fetch is equal to data.
+
+# Test Coverage
+
+## Coverage Reports with Jest
+
+What is a test coverage?
+
+-  Useful for Unit Test
+-  All files are tested
+-  All code path are tested
+
+Test Coverage Pitfals
+
+-  100% test coverage is not enough
+-  Missing functionality cannot be covered
+-  Unhandled errors
+-  False positive
+
+## Generating Coverage Reports
+
+You can setup coverage via `jest.config.js`, `package.json`, or command line
+
+-  collectCoverage(Boolean)
+-  collectCoverageFrom(wildcard)
+-  coverageReporters()
+
+# Jest Does Snapshots
+
+## Snapshot basic
+
+-  Best for UI testing
+-  Alternative to pixel-by-pixel comparison
+-  Stored as text files
+-  Lightweight and human readable
+
+## Matching against snapshots
+
+-  `expect(x).toMatchSnapshot()`
+-  First match create a snapshot
+-  Snapshots placed in `__snapshots__` directory
+
+Example:
+First we configure the enzyme
+
+```javascript
+import '@testing-library/jest-dom'
+
+import 'jest-enzyme'
+import { configure } from 'enzyme'
+import Adapter from 'enzyme-adapter-react-16'
+
+configure({ adapter: new Adapter() })
+```
+
+after that in `snapshot.test.js`
+
+```javascript
+import React from 'react'
+import { shallow } from 'enzyme'
+import Header from '../HeaderTesting'
+
+test('should test Header component', () => {
+   const wrapper = shallow(<Header />)
+   expect(wrapper).toMatchSnapshot()
+})
+```
+
+## Updating snapshots
+
+-  When the markup change, snapshot becomes invalid
+-  Ensure the new state is valid
+-  Prefer interactive mode
